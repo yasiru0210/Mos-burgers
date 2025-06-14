@@ -1,6 +1,4 @@
-import { FoodItem, Customer, Order } from '../types';
-
-export const mockFoodItems: FoodItem[] = [
+export const mockFoodItems = [
   {
     id: '1',
     name: 'MOS Burger',
@@ -106,7 +104,7 @@ export const mockFoodItems: FoodItem[] = [
   }
 ];
 
-export const mockCustomers: Customer[] = [
+export const mockCustomers = [
   {
     id: '1',
     name: 'John Smith',
@@ -148,7 +146,7 @@ export const mockCustomers: Customer[] = [
   }
 ];
 
-export const mockOrders: Order[] = [
+export const mockOrders = [
   {
     id: 'ORD001',
     customerId: '1',
@@ -195,4 +193,12 @@ export const mockOrders: Order[] = [
   }
 ];
 
-export const foodCategories = ['All', 'Burgers', 'Sides', 'Beverages', 'Desserts'];
+export const foodCategories = [
+  'All',
+  'Burgers',
+  'Sides',
+  'Drinks',
+  'Desserts',
+  'Set Meals',
+  'Specials'
+];

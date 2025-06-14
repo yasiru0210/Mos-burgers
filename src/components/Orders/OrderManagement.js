@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { Order, CartItem, FoodItem } from '../../types';
-import { mockOrders, mockFoodItems, mockCustomers } from '../../data/mockData';
+import React, { useState, useEffect } from 'react';
+import { mockOrders } from '../../data/mockData';
 import { 
   Plus, 
   Search, 
@@ -11,12 +10,45 @@ import {
   FileText,
   Calendar
 } from 'lucide-react';
+import { OrderModal } from './OrderModal';
+import { DeleteOrderModal } from './DeleteOrderModal';
 
-export const OrderManagement: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>(mockOrders);
+export const OrderManagement = ({ isNew = false }) => {
+  const [orders, setOrders] = useState(mockOrders);
   const [searchTerm, setSearchTerm] = useState('');
   const [showNewOrderModal, setShowNewOrderModal] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [editingOrder, setEditingOrder] = useState(null);
+  const [deletingOrder, setDeletingOrder] = useState(null);
+
+  useEffect(() => {
+    if (isNew) {
+      setShowNewOrderModal(true);
+    }
+  }, [isNew]);
+
+  const handleSaveOrder = (orderData) => {
+    if (editingOrder) {
+      // Edit existing order
+      setOrders(prev => prev.map(order => 
+        order.id === editingOrder.id ? { ...orderData, id: order.id } : order
+      ));
+      setEditingOrder(null);
+    } else {
+      // Add new order
+      const newOrder = {
+        ...orderData,
+        id: `ORD${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`
+      };
+      setOrders(prev => [newOrder, ...prev]);
+    }
+    setShowNewOrderModal(false);
+  };
+
+  const handleDeleteOrder = (orderId) => {
+    setOrders(prev => prev.filter(order => order.id !== orderId));
+    setDeletingOrder(null);
+  };
 
   const filteredOrders = orders.filter(order => 
     order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -24,7 +56,7 @@ export const OrderManagement: React.FC = () => {
     order.customer.phone.includes(searchTerm)
   );
 
-  const getStatusBadge = (status: Order['status']) => {
+  const getStatusBadge = (status) => {
     const statusConfig = {
       completed: { bg: 'bg-green-100', text: 'text-green-800', label: 'Completed' },
       pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Pending' },
@@ -39,9 +71,35 @@ export const OrderManagement: React.FC = () => {
     );
   };
 
-  const generateReceipt = (order: Order) => {
-    // In a real application, this would generate a PDF
-    alert(`Receipt generated for order ${order.id}`);
+  const generateReceipt = (order) => {
+    // Generate receipt content
+    const receiptContent = `
+      MOS Burger Receipt
+      ------------------
+      Order #: ${order.id}
+      Date: ${order.date}
+      Customer: ${order.customer.name}
+      
+      Items:
+      ${order.items.map(item => 
+        `${item.foodItem.name} x${item.quantity} - $${item.subtotal.toFixed(2)}`
+      ).join('\n')}
+      
+      Subtotal: $${order.subtotal.toFixed(2)}
+      ${order.discount > 0 ? `Discount (${(order.discount * 100).toFixed(0)}%): -$${(order.subtotal * order.discount).toFixed(2)}\n` : ''}
+      Total: $${order.total.toFixed(2)}
+    `;
+
+    // Create and download receipt file
+    const blob = new Blob([receiptContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `receipt-${order.id}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
   return (
@@ -141,12 +199,14 @@ export const OrderManagement: React.FC = () => {
                         <FileText className="w-4 h-4" />
                       </button>
                       <button
+                        onClick={() => setEditingOrder(order)}
                         className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors duration-200"
                         title="Edit Order"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
+                        onClick={() => setDeletingOrder(order)}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
                         title="Delete Order"
                       >
@@ -168,6 +228,17 @@ export const OrderManagement: React.FC = () => {
           <p className="text-gray-600">Try adjusting your search criteria or create a new order</p>
         </div>
       )}
+
+      {/* Modals */}
+      <OrderModal
+        isOpen={showNewOrderModal || editingOrder !== null}
+        onClose={() => {
+          setShowNewOrderModal(false);
+          setEditingOrder(null);
+        }}
+        onSave={handleSaveOrder}
+        order={editingOrder}
+      />
 
       {/* Order Details Modal */}
       {selectedOrder && (
@@ -247,6 +318,14 @@ export const OrderManagement: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteOrderModal
+        isOpen={deletingOrder !== null}
+        onClose={() => setDeletingOrder(null)}
+        onConfirm={() => handleDeleteOrder(deletingOrder.id)}
+        orderId={deletingOrder?.id}
+      />
     </div>
   );
 };

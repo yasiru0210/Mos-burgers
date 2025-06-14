@@ -1,5 +1,5 @@
 import React from 'react';
-import { ViewType } from '../../types';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   UtensilsCrossed, 
@@ -9,20 +9,17 @@ import {
   Store
 } from 'lucide-react';
 
-interface SidebarProps {
-  activeView: ViewType;
-  onViewChange: (view: ViewType) => void;
-}
-
 const navigationItems = [
-  { id: 'dashboard' as ViewType, label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'food-items' as ViewType, label: 'Food Items', icon: UtensilsCrossed },
-  { id: 'orders' as ViewType, label: 'Orders', icon: ShoppingCart },
-  { id: 'customers' as ViewType, label: 'Customers', icon: Users },
-  { id: 'reports' as ViewType, label: 'Reports', icon: BarChart3 },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/' },
+  { id: 'food-items', label: 'Food Items', icon: UtensilsCrossed, path: '/food-items' },
+  { id: 'orders', label: 'Orders', icon: ShoppingCart, path: '/orders' },
+  { id: 'customers', label: 'Customers', icon: Users, path: '/customers' },
+  { id: 'reports', label: 'Reports', icon: BarChart3, path: '/reports' },
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange }) => {
+export const Sidebar = () => {
+  const location = useLocation();
+
   return (
     <aside className="bg-gray-900 text-white w-64 min-h-screen flex flex-col">
       {/* Logo */}
@@ -39,25 +36,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange }) =>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-6">
-        <ul className="space-y-2 px-4">
+      <nav className="flex-1 p-4">
+        <ul className="space-y-1">
           {navigationItems.map((item) => {
             const Icon = item.icon;
-            const isActive = activeView === item.id;
+            const isActive = location.pathname === item.path;
             
             return (
               <li key={item.id}>
-                <button
-                  onClick={() => onViewChange(item.id)}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                <Link
+                  to={item.path}
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 ${
                     isActive
-                      ? 'bg-orange-500 text-white shadow-lg'
+                      ? 'bg-orange-500 text-white'
                       : 'text-gray-300 hover:bg-gray-800 hover:text-white'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
-                  <span className="font-medium">{item.label}</span>
-                </button>
+                  <span>{item.label}</span>
+                </Link>
               </li>
             );
           })}

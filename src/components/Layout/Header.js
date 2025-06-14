@@ -1,11 +1,7 @@
 import React from 'react';
 import { Bell, User, Search } from 'lucide-react';
 
-interface HeaderProps {
-  title: string;
-}
-
-export const Header: React.FC<HeaderProps> = ({ title }) => {
+export const Header = ({ title }) => {
   const expiredItemsCount = 1; // This would come from context/state
 
   return (

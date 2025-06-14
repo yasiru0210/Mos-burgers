@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { Customer } from '../../types';
+import React, { useState, useEffect } from 'react';
 import { mockCustomers, mockOrders } from '../../data/mockData';
 import { 
   Plus, 
@@ -13,12 +12,22 @@ import {
   ShoppingBag,
   Calendar
 } from 'lucide-react';
+import { CustomerModal } from './CustomerModal';
+import { DeleteCustomerModal } from './DeleteCustomerModal';
 
-export const CustomerManagement: React.FC = () => {
-  const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
+export const CustomerManagement = ({ isNew = false }) => {
+  const [customers, setCustomers] = useState(mockCustomers);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState(null);
+  const [deletingCustomer, setDeletingCustomer] = useState(null);
+
+  useEffect(() => {
+    if (isNew) {
+      setShowAddModal(true);
+    }
+  }, [isNew]);
 
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -26,12 +35,31 @@ export const CustomerManagement: React.FC = () => {
     customer.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getCustomerOrders = (customerId: string) => {
+  const getCustomerOrders = (customerId) => {
     return mockOrders.filter(order => order.customerId === customerId);
   };
 
-  const handleDeleteCustomer = (id: string) => {
+  const handleSaveCustomer = (customerData) => {
+    if (editingCustomer) {
+      // Edit existing customer
+      setCustomers(prev => prev.map(customer => 
+        customer.id === editingCustomer.id ? { ...customerData, id: customer.id } : customer
+      ));
+      setEditingCustomer(null);
+    } else {
+      // Add new customer
+      const newCustomer = {
+        ...customerData,
+        id: `CUST${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`
+      };
+      setCustomers(prev => [newCustomer, ...prev]);
+    }
+    setShowAddModal(false);
+  };
+
+  const handleDeleteCustomer = (id) => {
     setCustomers(prev => prev.filter(customer => customer.id !== id));
+    setDeletingCustomer(null);
   };
 
   return (
@@ -118,12 +146,15 @@ export const CustomerManagement: React.FC = () => {
                   <ShoppingBag className="w-4 h-4 mr-1" />
                   Orders
                 </button>
-                <button className="flex-1 flex items-center justify-center px-3 py-2 text-sm bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors duration-200">
+                <button 
+                  onClick={() => setEditingCustomer(customer)}
+                  className="flex-1 flex items-center justify-center px-3 py-2 text-sm bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors duration-200"
+                >
                   <Edit className="w-4 h-4 mr-1" />
                   Edit
                 </button>
                 <button 
-                  onClick={() => handleDeleteCustomer(customer.id)}
+                  onClick={() => setDeletingCustomer(customer)}
                   className="flex items-center justify-center px-3 py-2 text-sm bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors duration-200"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -216,6 +247,25 @@ export const CustomerManagement: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Add/Edit Customer Modal */}
+      <CustomerModal
+        isOpen={showAddModal || editingCustomer !== null}
+        onClose={() => {
+          setShowAddModal(false);
+          setEditingCustomer(null);
+        }}
+        onSave={handleSaveCustomer}
+        customer={editingCustomer}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteCustomerModal
+        isOpen={deletingCustomer !== null}
+        onClose={() => setDeletingCustomer(null)}
+        onConfirm={() => handleDeleteCustomer(deletingCustomer.id)}
+        customerName={deletingCustomer?.name}
+      />
     </div>
   );
 };

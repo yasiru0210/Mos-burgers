@@ -8,13 +8,20 @@ import {
   DollarSign,
   Package
 } from 'lucide-react';
+import { generateReport } from './ReportGenerator';
 
-type ReportType = 'monthly' | 'annual' | 'customers' | 'items';
+const reportTypes = [
+  { id: 'monthly', label: 'Monthly Sales', icon: Calendar },
+  { id: 'annual', label: 'Annual Report', icon: TrendingUp },
+  { id: 'customers', label: 'Top Customers', icon: Users },
+  { id: 'items', label: 'Item Analysis', icon: Package }
+];
 
-export const ReportsSection: React.FC = () => {
-  const [activeReport, setActiveReport] = useState<ReportType>('monthly');
+export const ReportsSection = () => {
+  const [activeReport, setActiveReport] = useState('monthly');
   const [selectedMonth, setSelectedMonth] = useState('2024-01');
   const [selectedYear, setSelectedYear] = useState('2024');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const monthlyData = {
     totalSales: 15480.50,
@@ -49,15 +56,29 @@ export const ReportsSection: React.FC = () => {
     ]
   };
 
-  const reportTypes = [
-    { id: 'monthly' as const, label: 'Monthly Sales', icon: Calendar },
-    { id: 'annual' as const, label: 'Annual Report', icon: TrendingUp },
-    { id: 'customers' as const, label: 'Top Customers', icon: Users },
-    { id: 'items' as const, label: 'Item Analysis', icon: Package }
-  ];
-
-  const generateReport = () => {
-    alert(`Generating ${reportTypes.find(r => r.id === activeReport)?.label} report...`);
+  const handleGenerateReport = async () => {
+    setIsGenerating(true);
+    try {
+      switch (activeReport) {
+        case 'monthly':
+          generateReport('monthly', monthlyData, selectedMonth);
+          break;
+        case 'annual':
+          generateReport('annual', annualData, selectedYear);
+          break;
+        case 'customers':
+          generateReport('customers', null, selectedMonth);
+          break;
+        case 'items':
+          generateReport('items', null, selectedMonth);
+          break;
+      }
+    } catch (error) {
+      console.error('Error generating report:', error);
+      alert('Failed to generate report. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -69,11 +90,14 @@ export const ReportsSection: React.FC = () => {
           <p className="text-gray-600 mt-1">Track sales performance and customer insights</p>
         </div>
         <button 
-          onClick={generateReport}
-          className="inline-flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors duration-200"
+          onClick={handleGenerateReport}
+          disabled={isGenerating}
+          className={`inline-flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg transition-colors duration-200 ${
+            isGenerating ? 'opacity-75 cursor-not-allowed' : 'hover:bg-orange-600'
+          }`}
         >
-          <Download className="w-4 h-4 mr-2" />
-          Export Report
+          <Download className={`w-4 h-4 mr-2 ${isGenerating ? 'animate-bounce' : ''}`} />
+          {isGenerating ? 'Generating...' : 'Export Report'}
         </button>
       </div>
 
@@ -86,11 +110,12 @@ export const ReportsSection: React.FC = () => {
               <button
                 key={report.id}
                 onClick={() => setActiveReport(report.id)}
+                disabled={isGenerating}
                 className={`p-4 rounded-lg border-2 transition-all duration-200 ${
                   activeReport === report.id
                     ? 'border-orange-500 bg-orange-50 text-orange-700'
                     : 'border-gray-200 hover:border-orange-300 hover:bg-orange-50'
-                }`}
+                } ${isGenerating ? 'opacity-75 cursor-not-allowed' : ''}`}
               >
                 <Icon className="w-6 h-6 mx-auto mb-2" />
                 <p className="text-sm font-medium">{report.label}</p>

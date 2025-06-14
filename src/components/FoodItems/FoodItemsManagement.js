@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { FoodItem } from '../../types';
 import { mockFoodItems, foodCategories } from '../../data/mockData';
 import { 
   Plus, 
@@ -10,13 +9,16 @@ import {
   Filter,
   Package
 } from 'lucide-react';
+import { FoodItemModal } from './FoodItemModal';
+import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 
-export const FoodItemsManagement: React.FC = () => {
-  const [foodItems, setFoodItems] = useState<FoodItem[]>(mockFoodItems);
+export const FoodItemsManagement = () => {
+  const [foodItems, setFoodItems] = useState(mockFoodItems);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
-  const [editingItem, setEditingItem] = useState<FoodItem | null>(null);
+  const [editingItem, setEditingItem] = useState(null);
+  const [deleteItem, setDeleteItem] = useState(null);
 
   const filteredItems = foodItems.filter(item => {
     const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
@@ -28,11 +30,33 @@ export const FoodItemsManagement: React.FC = () => {
 
   const expiredItems = foodItems.filter(item => item.isExpired);
 
-  const handleDeleteItem = (id: string) => {
-    setFoodItems(prev => prev.filter(item => item.id !== id));
+  const handleSaveItem = (itemData) => {
+    if (editingItem) {
+      // Edit existing item
+      setFoodItems(prev => prev.map(item => 
+        item.id === editingItem.id ? { ...itemData, id: item.id } : item
+      ));
+      setEditingItem(null);
+    } else {
+      // Add new item
+      setFoodItems(prev => [...prev, {
+        ...itemData,
+        id: Math.max(...prev.map(item => item.id)) + 1
+      }]);
+    }
   };
 
-  const getStatusBadge = (item: FoodItem) => {
+  const handleDeleteItem = (id) => {
+    const itemToDelete = foodItems.find(item => item.id === id);
+    setDeleteItem(itemToDelete);
+  };
+
+  const confirmDelete = () => {
+    setFoodItems(prev => prev.filter(item => item.id !== deleteItem.id));
+    setDeleteItem(null);
+  };
+
+  const getStatusBadge = (item) => {
     if (item.isExpired) {
       return (
         <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
@@ -185,6 +209,24 @@ export const FoodItemsManagement: React.FC = () => {
           <p className="text-gray-600">Try adjusting your search or filter criteria</p>
         </div>
       )}
+
+      {/* Modals */}
+      <FoodItemModal
+        isOpen={showAddModal || editingItem !== null}
+        onClose={() => {
+          setShowAddModal(false);
+          setEditingItem(null);
+        }}
+        onSave={handleSaveItem}
+        item={editingItem}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={deleteItem !== null}
+        onClose={() => setDeleteItem(null)}
+        onConfirm={confirmDelete}
+        itemName={deleteItem?.name}
+      />
     </div>
   );
 };
