@@ -2,6 +2,7 @@
   "name": "mos-burgers-management",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://yasiru0210.github.io/Mos-burgers",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -16,10 +17,13 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.18",
+    "gh-pages": "^6.3.0",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
