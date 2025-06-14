@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Customer } from '../../types';
+import { Customer, ComponentWithNewProp } from '../../types';
 import { mockCustomers, mockOrders } from '../../data/mockData';
 import { 
   Plus, 
@@ -14,11 +14,11 @@ import {
   Calendar
 } from 'lucide-react';
 
-export const CustomerManagement: React.FC = () => {
+export const CustomerManagement: React.FC<ComponentWithNewProp> = ({ isNew = false }) => {
   const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(isNew);
 
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -213,6 +213,30 @@ export const CustomerManagement: React.FC = () => {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Customer Modal Placeholder */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">Add Customer</h3>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                ×
+              </button>
+            </div>
+            <p className="text-gray-600 mb-4">Add customer functionality will be implemented soon.</p>
+            <button
+              onClick={() => setShowAddModal(false)}
+              className="w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors duration-200"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}

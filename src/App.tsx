@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ViewType } from './types';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { Sidebar } from './components/Layout/Sidebar';
 import { Header } from './components/Layout/Header';
 import { DashboardOverview } from './components/Dashboard/DashboardOverview';
@@ -8,44 +8,46 @@ import { OrderManagement } from './components/Orders/OrderManagement';
 import { CustomerManagement } from './components/Customers/CustomerManagement';
 import { ReportsSection } from './components/Reports/ReportsSection';
 
-const viewTitles: Record<ViewType, string> = {
-  dashboard: 'Dashboard',
-  'food-items': 'Food Items',
-  orders: 'Orders',
-  customers: 'Customers',
-  reports: 'Reports'
-};
+const AppContent = () => {
+  const navigate = useNavigate();
 
-function App() {
-  const [activeView, setActiveView] = useState<ViewType>('dashboard');
-
-  const renderContent = () => {
-    switch (activeView) {
-      case 'dashboard':
-        return <DashboardOverview />;
-      case 'food-items':
-        return <FoodItemsManagement />;
-      case 'orders':
-        return <OrderManagement />;
-      case 'customers':
-        return <CustomerManagement />;
-      case 'reports':
-        return <ReportsSection />;
-      default:
-        return <DashboardOverview />;
-    }
+  const handleViewChange = (view: string) => {
+    const paths: Record<string, string> = {
+      dashboard: '/',
+      'food-items': '/food-items',
+      orders: '/orders',
+      customers: '/customers',
+      reports: '/reports'
+    };
+    navigate(paths[view]);
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar activeView={activeView} onViewChange={setActiveView} />
-      <div className="flex-1 flex flex-col">
-        <Header title={viewTitles[activeView]} />
+    <div className="min-h-screen bg-gray-100">
+      <Header title="MOS Burgers Management" />
+      <div className="flex">
+        <Sidebar onViewChange={handleViewChange} />
         <main className="flex-1 p-6">
-          {renderContent()}
+          <Routes>
+            <Route path="/" element={<DashboardOverview />} />
+            <Route path="/food-items" element={<FoodItemsManagement />} />
+            <Route path="/orders" element={<OrderManagement />} />
+            <Route path="/orders/new" element={<OrderManagement isNew={true} />} />
+            <Route path="/customers" element={<CustomerManagement />} />
+            <Route path="/customers/new" element={<CustomerManagement isNew={true} />} />
+            <Route path="/reports" element={<ReportsSection />} />
+          </Routes>
         </main>
       </div>
     </div>
+  );
+};
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
   );
 }
 

@@ -56,3 +56,8 @@ export interface SalesReport {
 }
 
 export type ViewType = 'dashboard' | 'food-items' | 'orders' | 'customers' | 'reports';
+
+// Add interface for components that need isNew prop
+export interface ComponentWithNewProp {
+  isNew?: boolean;
+}

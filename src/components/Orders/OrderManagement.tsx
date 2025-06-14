@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Order, CartItem, FoodItem } from '../../types';
+import { Order, CartItem, FoodItem, ComponentWithNewProp } from '../../types';
 import { mockOrders, mockFoodItems, mockCustomers } from '../../data/mockData';
 import { 
   Plus, 
@@ -12,10 +12,10 @@ import {
   Calendar
 } from 'lucide-react';
 
-export const OrderManagement: React.FC = () => {
+export const OrderManagement: React.FC<ComponentWithNewProp> = ({ isNew = false }) => {
   const [orders, setOrders] = useState<Order[]>(mockOrders);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showNewOrderModal, setShowNewOrderModal] = useState(false);
+  const [showNewOrderModal, setShowNewOrderModal] = useState(isNew);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const filteredOrders = orders.filter(order => 
@@ -244,6 +244,30 @@ export const OrderManagement: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* New Order Modal Placeholder */}
+      {showNewOrderModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">New Order</h3>
+              <button
+                onClick={() => setShowNewOrderModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                ×
+              </button>
+            </div>
+            <p className="text-gray-600 mb-4">New order functionality will be implemented soon.</p>
+            <button
+              onClick={() => setShowNewOrderModal(false)}
+              className="w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors duration-200"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}

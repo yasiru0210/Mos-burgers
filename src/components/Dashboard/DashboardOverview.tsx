@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   TrendingUp, 
   ShoppingBag, 
@@ -50,6 +51,20 @@ const recentOrders = [
 ];
 
 export const DashboardOverview: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleNewOrder = () => {
+    navigate('/orders/new');
+  };
+
+  const handleAddCustomer = () => {
+    navigate('/customers/new');
+  };
+
+  const handleViewReports = () => {
+    navigate('/reports');
+  };
+
   return (
     <div className="space-y-6">
       {/* Stats Grid */}
@@ -122,15 +137,21 @@ export const DashboardOverview: React.FC = () => {
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
           <div className="space-y-3">
-            <button className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors duration-200">
+            <button 
+              onClick={handleNewOrder}
+              className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors duration-200">
               <ShoppingBag className="w-4 h-4" />
               <span>New Order</span>
             </button>
-            <button className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200">
+            <button 
+              onClick={handleAddCustomer}
+              className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200">
               <Users className="w-4 h-4" />
               <span>Add Customer</span>
             </button>
-            <button className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200">
+            <button 
+              onClick={handleViewReports}
+              className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200">
               <TrendingUp className="w-4 h-4" />
               <span>View Reports</span>
             </button>
