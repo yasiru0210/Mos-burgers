@@ -72,6 +72,9 @@ export const ReportsSection = () => {
         case 'items':
           generateReport('items', null, selectedMonth);
           break;
+           default:
+          console.warn(`Unknown report type: ${activeReport}`);
+          alert('Invalid report type selected.');
       }
     } catch (error) {
       console.error('Error generating report:', error);
