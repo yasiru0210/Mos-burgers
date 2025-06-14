@@ -8,13 +8,7 @@ import { OrderManagement } from './components/Orders/OrderManagement';
 import { CustomerManagement } from './components/Customers/CustomerManagement';
 import { ReportsSection } from './components/Reports/ReportsSection';
 
-const viewTitles = {
-  dashboard: 'Dashboard',
-  'food-items': 'Food Items',
-  orders: 'Orders',
-  customers: 'Customers',
-  reports: 'Reports'
-};
+
 
 const AppContent = () => {
   const navigate = useNavigate();
